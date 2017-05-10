@@ -11,7 +11,7 @@ import org.apache.spark.sql.{DataFrame, Row}
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 
-case class JDBCWriter(jdbcUrl: String, connProps: Map[String, String]){
+case class PGTableWriter(jdbcUrl: String, connProps: Map[String, String]){
   //jdbcUrl = s"jdbc:postgresql://..." // db credentials elided
   val connectionProperties: JDBCOptions = {
     val options = Map("driver" -> "org.postgresql.Driver", "url" -> jdbcUrl)
@@ -89,7 +89,7 @@ case class JDBCWriter(jdbcUrl: String, connProps: Map[String, String]){
 
   def addIndices(table: String, cols: Seq[String] = Seq.empty): Unit = {
     val conn = cf()
-    val createIndicesStmt = (for (col <- cols) yield s"CREATE INDEX ${table}_${col}_ix on ${table}(${col})") mkString "; "
+    val createIndicesStmt = (for (col <- cols) yield s"CREATE INDEX ${table}_${col}_ix on $table($col)") mkString "; "
     conn.createStatement().executeUpdate(createIndicesStmt)
     conn.close()
   }
