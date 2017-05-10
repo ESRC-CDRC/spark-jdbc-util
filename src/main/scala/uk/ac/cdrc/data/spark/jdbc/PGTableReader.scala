@@ -6,13 +6,7 @@ import org.apache.spark.sql._
   * Created on 5/10/17.
   */
 
-class PGTableReader(session: SparkSession, url: String, user: String, password: String) {
-
-  def reader: DataFrameReader = session.read.
-    format("jdbc").
-    option("url", url).
-    option("user", user).
-    option("password", password)
+class PGTableReader(reader: DataFrameReader) {
 
   def getIdBound(table: String, idCol: String): (Long, Long) = {
     reader.option("dbtable", s"(select min($idCol) as minId, max($idCol) as maxId from $table) idbound").
