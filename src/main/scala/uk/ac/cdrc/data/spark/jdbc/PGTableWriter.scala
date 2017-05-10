@@ -10,7 +10,7 @@ import org.apache.spark.sql.{DataFrame, Row}
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 
-class PGTableWriter(cf: () => Connection){
+case class PGTableWriter(cf: () => Connection){
 
   // Convert every partition (an `Iterator[Row]`) to bytes (InputStream)
   def rowsToInputStream(rows: Iterator[Row], delimiter: String): InputStream = {
@@ -82,14 +82,15 @@ class PGTableWriter(cf: () => Connection){
     conn.close()
   }
 
-  def write(frame: DataFrame, table: String, overwrite: Boolean = false, index: Boolean = true, appendIdCol: Option[String] = Some("id")): Unit = {
+  def write(frame: DataFrame, table: String, overwrite: Boolean = false, index: Boolean = true, appendIdCol: Option[String] = Some("id"), numPartition: Int = 100): Unit = {
 
     if (overwrite)
       dropTable(table)
     createTable(frame, table)
+    val gathered =frame.coalesce(numPartition)
 
     // Beware: this will open a db connection for every partition of your DataFrame.
-    frame.foreachPartition { rows =>
+    gathered.foreachPartition { rows =>
       val conn = cf()
       val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
 
@@ -100,7 +101,7 @@ class PGTableWriter(cf: () => Connection){
       conn.close()
     }
     if (index)
-      addIndices(table, frame.columns)
+      addIndices(table, gathered.columns)
     // Append an id column if required (e.g., when one needs spark's partitioning by IDs
     appendIdCol match {
       case Some(idColName) => addIdColumn(table, idColName)
