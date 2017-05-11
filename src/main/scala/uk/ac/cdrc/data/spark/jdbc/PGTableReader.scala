@@ -16,14 +16,15 @@ class PGTableReader(reader: DataFrameReader) {
     }
   }
 
-  def readTable(table: String, idCol: String = "id", numPartitions: Int = 100, options: Map[String, String] = Map.empty): DataFrame = {
+  def readTable(table: String, idCol: String = "id", numPartitions: Int = 100, options: Map[String, String] = Map.empty): PGTable = {
     val idBound = getIdBound(table, idCol)
-    reader.option("dbtable", table).
+    val df = reader.option("dbtable", table).
       option("numPartitions", numPartitions).
       option("partitionColumn", idCol).
       option("lowerBound", idBound._1).
       option("upperBound", idBound._2).
       options(options).
       load().cache
+    PGTable(df, table, idCol)
   }
 }
