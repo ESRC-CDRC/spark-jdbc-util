@@ -34,7 +34,7 @@ case class PGTableWriter(cf: () => Connection){
     "DateType" -> "date",
     "TimestampType" -> "timestamp",
     "FloatType" -> "real",
-    "DoubleType" -> "real",
+    "DoubleType" -> "double precision",
     "IntegerType" -> "int",
     "LongType" -> "int"
   )
