@@ -36,7 +36,7 @@ case class PGTableWriter(cf: () => Connection){
     "FloatType" -> "real",
     "DoubleType" -> "double precision",
     "IntegerType" -> "int",
-    "LongType" -> "int"
+    "LongType" -> "bigint"
   )
 
   def schemaToTable(frame: DataFrame, table: String): String = {
