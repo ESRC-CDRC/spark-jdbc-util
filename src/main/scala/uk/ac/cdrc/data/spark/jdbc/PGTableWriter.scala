@@ -3,31 +3,14 @@ package uk.ac.cdrc.data.spark.jdbc
 /**
   * A writer utility for DataFrame to PostgreSQL tables
   */
-import java.io.InputStream
 import java.sql.Connection
 
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.DataFrame
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 
 case class PGTableWriter(cf: () => Connection){
 
-  // Convert every partition (an `Iterator[Row]`) to bytes (InputStream)
-  def rowsToInputStream(rows: Iterator[Row], delimiter: String): InputStream = {
-
-    val bytes: Iterator[Byte] = for {
-      row <- rows
-      b <- (row.mkString(delimiter) + "\n").getBytes
-    } yield b
-
-    new InputStream {
-      override def read(): Int = if (bytes.hasNext) {
-        bytes.next & 0xff // bitwise AND - make the signed byte an unsigned int from 0-255
-      } else {
-        -1
-      }
-    }
-  }
 
   val getSQLType: Map[String, String] = Map(
     "StringType" -> "text",
@@ -88,6 +71,7 @@ case class PGTableWriter(cf: () => Connection){
       dropTable(table)
     createTable(frame, table)
     val gathered =frame.coalesce(numPartition)
+    val isString = frame.dtypes.map(x => x._2 == "StringType")
 
     // Beware: this will open a db connection for every partition of your DataFrame.
     gathered.foreachPartition { rows =>
@@ -96,7 +80,7 @@ case class PGTableWriter(cf: () => Connection){
 
       cm.copyIn(
         s"""COPY $table FROM STDIN WITH (NULL 'null', FORMAT CSV, DELIMITER E'\t')""", // adjust COPY settings as you desire, options from https://www.postgresql.org/docs/9.5/static/sql-copy.html
-        rowsToInputStream(rows, "\t"))
+        Streamer.rowsToInputStream(rows, isString, "\t"))
 
       conn.close()
     }
