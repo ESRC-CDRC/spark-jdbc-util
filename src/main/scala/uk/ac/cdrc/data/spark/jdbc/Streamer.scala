@@ -17,7 +17,7 @@ object Streamer {
       quoted = row.toSeq.zip(isString).map {x =>
         if (x._2)
           s""""${"\"".r replaceAllIn (if (x._1 == null) "" else x._1.toString, "\"\"")}""""
-        else x._1.toString}
+        else if (x._1 == null) "" else x._1.toString}
       b <- (quoted.mkString(delimiter) + "\n").getBytes
     } yield b
 
