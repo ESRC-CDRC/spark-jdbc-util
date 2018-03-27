@@ -21,6 +21,7 @@ case class PGTableWriter(cf: () => Connection){
     "FloatType" -> "real",
     "DoubleType" -> "double precision",
     "IntegerType" -> "int",
+    "ShortType" -> "smallint",
     "LongType" -> "bigint"
   )
 
