@@ -11,6 +11,8 @@ import org.postgresql.core.BaseConnection
 
 case class PGTableWriter(cf: () => Connection){
 
+  val nullString: String = "null"
+  val delimiter: String = """\t"""
 
   val getSQLType: Map[String, String] = Map(
     "StringType" -> "text",
@@ -79,8 +81,8 @@ case class PGTableWriter(cf: () => Connection){
       val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
 
       cm.copyIn(
-        s"""COPY $table FROM STDIN WITH (NULL 'null', FORMAT CSV, DELIMITER E'\t')""", // adjust COPY settings as you desire, options from https://www.postgresql.org/docs/9.5/static/sql-copy.html
-        Streamer.rowsToInputStream(rows, isString, "\t"))
+        Streamer.copyStatement(table),
+        Streamer.rowsToInputStream(rows, isString))
 
       conn.close()
     }
