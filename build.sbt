@@ -3,7 +3,7 @@ resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositor
 lazy val spark_jdbc_util = (project in file(".")).
   settings(
     organization := "uk.ac.cdrc.data",
-    version := "0.2-SNAPSHOT",
+    version := "0.3-SNAPSHOT",
     scalaVersion := "2.11.8",
     crossScalaVersions := Seq("2.10.8"),
     name := "spark-jdbc-util",
