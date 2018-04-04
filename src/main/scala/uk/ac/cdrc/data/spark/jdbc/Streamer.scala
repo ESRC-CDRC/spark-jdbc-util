@@ -9,11 +9,10 @@ import org.apache.spark.sql.Row
   */
 
 trait Streamer {
-  val nullString: String = """null"""
   val delimiter: String = """\t"""
 
   // adjust COPY settings as you desire, options from https://www.postgresql.org/docs/9.5/static/sql-copy.html
-  def copyStatement(table: String): String = s"""COPY \$table FROM STDIN WITH (NULL '$nullString', FORMAT CSV, DELIMITER E'$delimiter')"""
+  def copyStatement(table: String): String = s"""COPY $table FROM STDIN WITH (FORMAT CSV, DELIMITER E'$delimiter')"""
 
   // Convert every partition (an `Iterator[Row]`) to bytes (InputStream)
   def rowsToInputStream(rows: Iterator[Row], isString: Array[Boolean]): InputStream = {
@@ -21,7 +20,7 @@ trait Streamer {
     val bytes: Iterator[Byte] = for {
       row <- rows
       quoted = row.toSeq.zip(isString).map {x =>
-        if (x._1 == null) nullString
+        if (x._1 == null) ""
         else if (x._2) s""""${"\"".r replaceAllIn (x._1.toString, "\"\"")}""""
         else x._1.toString
       }
