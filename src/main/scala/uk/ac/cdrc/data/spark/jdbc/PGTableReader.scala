@@ -13,6 +13,7 @@ class PGTableReader(reader: DataFrameReader) {
       load().collect()(0) match {
       case Row(minId: Int, maxId: Int) => (minId, maxId)
       case Row(minId: Long, maxId: Long) => (minId, maxId)
+      case Row(null, null) => (0, 0)
     }
   }
 
