@@ -42,7 +42,7 @@ case class PGTableWriter(cf: () => Connection){
   def deleteData(table: String): Int = {
     val conn = cf()
     val stmt = conn.createStatement()
-    val cnt = stmt.executeUpdate(s"DELETE from $table")
+    val cnt = stmt.executeUpdate(s"TRUNCATE $table")
     conn.close()
     cnt
   }
