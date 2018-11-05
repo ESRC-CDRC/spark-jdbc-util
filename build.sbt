@@ -8,8 +8,8 @@ lazy val spark_jdbc_util = (project in file(".")).
     crossScalaVersions := Seq("2.10.8"),
     name := "spark-jdbc-util",
     libraryDependencies  ++= Seq(
-      "org.apache.spark" %% "spark-sql" % "2.3.2",
-      "org.postgresql" % "postgresql" % "9.4.1212",
+      "org.apache.spark" %% "spark-sql" % "2.3.2" % "provided",
+      "org.postgresql" % "postgresql" % "42.2.5" % "provided",
       "org.scalatest" %% "scalatest" % "2.2.6" % "test",
       "org.scalacheck" %% "scalacheck" % "1.12.5" % "test"
     )
